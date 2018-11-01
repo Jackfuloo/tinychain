@@ -1,3 +1,8 @@
+/**
+ * Part of:
+ * Comments:
+ *
+**/
 #include <algorithm>
 #include <tinychain/tinychain.hpp>
 #include <tinychain/consensus.hpp>
@@ -28,6 +33,7 @@ void miner::start(address_t& addr){
 }
 
 tx miner::create_coinbase_tx(address_t& addr) {
+    // TODO
     return tx{addr};
 }
 
@@ -48,17 +54,24 @@ bool miner::pow_once(block& new_block, address_t& addr) {
     // 难度调整: 
     // 控制每块速度，控制最快速度，大约10秒
     uint64_t time_peroid = new_block.header_.timestamp - prev_block.header_.timestamp;
-    //log::info("consensus") << "target:" << ncan;
+    log::info("consensus") << "block time :" << time_peroid <<" s";
 
     if (time_peroid <= 10u) {
         new_block.header_.difficulty = prev_block.header_.difficulty + 9000;
     } else {
-        new_block.header_.difficulty = prev_block.header_.difficulty - 3000;
+        if (prev_block.header_.difficulty <= 3000) {
+            new_block.header_.difficulty = prev_block.header_.difficulty + 9000;
+        } else {
+            new_block.header_.difficulty = prev_block.header_.difficulty - 3000;
+        }
     }
+
+    log::debug("consensus")<< prev_block.header_.difficulty;
+
     // 计算挖矿目标值,最大值除以难度就目标值
     uint64_t target = 0xffffffffffffffff / prev_block.header_.difficulty;
 
-    // 设置coinbase交易
+    // 设置coinbase交易, CHENHAO => 这里继续，设置coinbase，后续实现验证交易和区块。
     auto&& tx = create_coinbase_tx(addr);
     pool.push_back(tx);
 
@@ -87,12 +100,13 @@ bool miner::pow_once(block& new_block, address_t& addr) {
 }
 
 bool validate_tx(blockchain& chain, const tx& new_tx) {
+    // TODO
     // input exsited?
     auto&& inputs = new_tx.inputs();
     for (auto& each : inputs) {
 
         tx pt;
-        if (!chain.get_tx(each.first, pt)) {
+        if (!chain.get_tx(std::get<0>(each), pt)) {
             return false;
         }
 
@@ -104,6 +118,7 @@ bool validate_tx(blockchain& chain, const tx& new_tx) {
 }
 
 bool validate_block(const tx& new_block) {
+    // TODO
 
     return true;
 }

@@ -1,3 +1,8 @@
+/**
+ * Part of:
+ * Comments:
+ *
+**/
 #pragma once
 #include <queue>
 #include <tinychain/tinychain.hpp>
@@ -12,9 +17,8 @@ class blockchain
 public:
     typedef block::tx_list_t memory_pool_t;
 
-    blockchain(uint16_t id = 3721):id_(id) {
+    blockchain(uint16_t id = 1991):id_(id) {
         id_ = id;
-        create_genesis_block();
     }
     blockchain(const blockchain&)  = default;
     blockchain(blockchain&&)  = default;
@@ -32,7 +36,7 @@ public:
         chain_.push(new_block);
     }
 
-    uint64_t height() { return chain_.height(); }
+    uint64_t get_height();
 
     block get_last_block(); 
 
@@ -56,17 +60,13 @@ public:
         log::info("blockchain-pool")<<"new tx:"<<tx.to_json().toStyledString();
     }
 
-    void create_genesis_block();
-
     key_pair get_new_key_pair(){
         return key_pair_database_.get_new_key_pair();
     }
 
     Json::Value list_keys(){
         Json::Value root;
-        for (const auto& each : key_pair_database_.list_keys()) {
-                root.append(each.to_json());
-        }
+        key_pair_database_.list_keys(root);
         return root;
     }
 
